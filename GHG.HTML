@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRANCIS LOVERS PRIME BACK</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    overflow:hidden;
+    background:black;
+    font-family:'Poppins',sans-serif;
+}
+
+/* HOLOGRAPHIC TITLE */
+.title{
+    position:absolute;
+    top:40%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:3rem;
+    font-weight:900;
+    letter-spacing:6px;
+    text-align:center;
+    background:linear-gradient(90deg,#00ffff,#ff00ff,#00ffff);
+    background-size:200% auto;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:holo 4s linear infinite;
+    text-shadow:0 0 20px rgba(0,255,255,0.8),
+                0 0 40px rgba(255,0,255,0.8);
+}
+
+@keyframes holo{
+    to{background-position:200% center;}
+}
+
+/* LOADING UI */
+.loadingBox{
+    position:absolute;
+    bottom:15%;
+    left:50%;
+    transform:translateX(-50%);
+    width:300px;
+    text-align:center;
+    color:white;
+}
+
+.bar{
+    width:100%;
+    height:8px;
+    background:rgba(255,255,255,0.2);
+    border-radius:50px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.bar span{
+    display:block;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#ff00ff,#00ffff);
+    border-radius:50px;
+}
+
+.percent{
+    margin-top:8px;
+    font-weight:bold;
+}
+
+/* FLASH EFFECT */
+.flash{
+    position:absolute;
+    inset:0;
+    background:white;
+    opacity:0;
+    pointer-events:none;
+}
+
+</style>
+</head>
+<body>
+
+<div class="title">FRANCIS LOVERS PRIME BACK</div>
+
+<div class="loadingBox">
+    INITIALIZING UNIVERSE...
+    <div class="bar"><span id="progressBar"></span></div>
+    <div class="percent" id="percent">0%</div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<audio id="introSound">
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b0f7e1c2.mp3?filename=cinematic-intro-115667.mp3" type="audio/mp3">
+</audio>
+
+<script>
+// ===== THREE JS UNIVERSE =====
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 3000);
+let renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+camera.position.z = 5;
+
+let starGeometry = new THREE.BufferGeometry();
+let starCount = 6000;
+let positions = new Float32Array(starCount * 3);
+
+for(let i=0;i<starCount;i++){
+    positions[i*3] = (Math.random()-0.5)*2000;
+    positions[i*3+1] = (Math.random()-0.5)*2000;
+    positions[i*3+2] = (Math.random()-0.5)*2000;
+}
+
+starGeometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
+
+let starMaterial = new THREE.PointsMaterial({color:0xffffff,size:1});
+let stars = new THREE.Points(starGeometry,starMaterial);
+scene.add(stars);
+
+let warp = false;
+let speed = 0.5;
+
+function animate(){
+    requestAnimationFrame(animate);
+
+    stars.rotation.x += 0.0005;
+    stars.rotation.y += 0.0005;
+
+    if(warp){
+        camera.position.z -= speed;
+        speed += 0.15;
+    }
+
+    renderer.render(scene,camera);
+}
+animate();
+
+// ===== LOADING SYSTEM =====
+let progress = 0;
+let bar = document.getElementById("progressBar");
+let percent = document.getElementById("percent");
+let flash = document.getElementById("flash");
+let introSound = document.getElementById("introSound");
+
+let loadInterval = setInterval(()=>{
+    progress += Math.floor(Math.random()*4)+1;
+    if(progress >= 100){
+        progress = 100;
+        clearInterval(loadInterval);
+
+        introSound.play(); // play cinematic sound
+
+        setTimeout(()=>{
+            warp = true; // engage warp
+        },1000);
+
+        setTimeout(()=>{
+            flash.style.transition="opacity 0.4s ease";
+            flash.style.opacity="1";
+        },3500);
+
+        setTimeout(()=>{
+            flash.style.opacity="0";
+        },4000);
+    }
+
+    bar.style.width = progress+"%";
+    percent.textContent = progress+"%";
+
+},100);
+
+// Resize
+window.addEventListener("resize",()=>{
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+});
+</script>
+
+</body>
+</html>
